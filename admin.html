@@ -25,13 +25,13 @@
     }
 
     .wrap{
-      max-width:1200px;
+      max-width:1300px;
       margin:0 auto;
       padding:20px;
     }
 
     .top{
-      background:rgba(255,255,255,.88);
+      background:rgba(255,255,255,.9);
       border-radius:32px;
       padding:25px;
       box-shadow:var(--shadow);
@@ -80,12 +80,12 @@
 
     .grid{
       display:grid;
-      grid-template-columns:.8fr 1.2fr;
+      grid-template-columns:.85fr 1.15fr;
       gap:20px;
     }
 
     .card{
-      background:rgba(255,255,255,.88);
+      background:rgba(255,255,255,.9);
       border-radius:28px;
       box-shadow:var(--shadow);
       overflow:hidden;
@@ -105,17 +105,39 @@
 
     input,select{
       width:100%;
-      padding:14px;
-      border-radius:14px;
+      padding:12px;
+      border-radius:12px;
       border:1px solid var(--line);
       margin-bottom:10px;
       font:inherit;
+      background:white;
     }
 
     .row{
       display:grid;
       grid-template-columns:1fr 1fr;
       gap:10px;
+    }
+
+    .checks{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+      margin:10px 0;
+    }
+
+    .check{
+      background:white;
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:10px;
+      font-weight:700;
+      color:var(--muted);
+    }
+
+    .check input{
+      width:auto;
+      margin:0 6px 0 0;
     }
 
     .list{
@@ -140,12 +162,12 @@
       width:100%;
       border-collapse:collapse;
       background:white;
-      min-width:760px;
+      min-width:900px;
     }
 
     th,td{
       border:1px solid var(--line);
-      padding:12px;
+      padding:10px;
       text-align:center;
     }
 
@@ -163,9 +185,15 @@
       overflow-x:auto;
     }
 
+    .small{
+      font-size:.85rem;
+      color:var(--muted);
+      font-weight:700;
+    }
+
     @media(max-width:900px){
       .grid{grid-template-columns:1fr}
-      .row{grid-template-columns:1fr}
+      .row,.checks{grid-template-columns:1fr}
     }
   </style>
 </head>
@@ -182,13 +210,9 @@
     </div>
 
     <div>
-      <button class="btn primary" id="generateBtn">
-        Gerar escala do mês
-      </button>
-
-      <button class="btn secondary" id="logoutBtn">
-        Sair
-      </button>
+      <button class="btn primary" id="generateBtn">Gerar escala do mês</button>
+      <button class="btn secondary" id="saveScheduleBtn">Salvar edição da escala</button>
+      <button class="btn secondary" id="logoutBtn">Sair</button>
     </div>
   </section>
 
@@ -208,16 +232,43 @@
           <option value="false">Inativo / não entra na escala</option>
         </select>
 
-        <button class="btn primary" id="addBtn">
-          Adicionar casal
-        </button>
+        <div class="small">Funções permitidas para esse casal:</div>
+
+        <div class="checks">
+          <label class="check">
+            <input type="checkbox" id="canDevocional" checked>
+            Devocional
+          </label>
+
+          <label class="check">
+            <input type="checkbox" id="canEstudo" checked>
+            Estudo
+          </label>
+
+          <label class="check">
+            <input type="checkbox" id="canKids" checked>
+            Kids
+          </label>
+
+          <label class="check">
+            <input type="checkbox" id="canLanche" checked>
+            Lanche
+          </label>
+        </div>
+
+        <button class="btn primary" id="addBtn">Adicionar casal</button>
 
         <div id="couplesList" class="list"></div>
       </div>
     </section>
 
     <section class="card">
-      <div class="head">Escala mensal — Terças-feiras</div>
+      <div class="head">
+        Escala mensal — Terças-feiras
+        <div class="small">
+          Você pode editar manualmente cada função e salvar.
+        </div>
+      </div>
 
       <div class="body table-wrap">
         <table>
@@ -271,6 +322,7 @@ const couplesList = document.getElementById("couplesList");
 const scheduleBody = document.getElementById("scheduleBody");
 
 let couples = [];
+let currentRows = [];
 
 function rioDate(){
   return new Date(
@@ -329,6 +381,20 @@ function coupleName(c){
   return `${c.nome1} e ${c.nome2}`;
 }
 
+function normalizePermissions(c){
+  return {
+    devocional:c.canDevocional !== false,
+    estudo:c.canEstudo !== false,
+    kids:c.canKids !== false,
+    lanche:c.canLanche !== false
+  };
+}
+
+function canDo(c, task){
+  const p = normalizePermissions(c);
+  return p[task] === true;
+}
+
 function shuffle(array){
   const arr = [...array];
 
@@ -360,6 +426,8 @@ function renderCouples(){
   }
 
   couples.forEach(c => {
+    const p = normalizePermissions(c);
+
     const div = document.createElement("div");
     div.className = "item";
 
@@ -367,11 +435,21 @@ function renderCouples(){
       <div>
         <strong>${c.nome1} e ${c.nome2}</strong>
         <div class="muted">${c.ativo ? "Ativo" : "Inativo"}</div>
+        <div class="small">
+          ${p.devocional ? "Devocional" : ""}
+          ${p.estudo ? " | Estudo" : ""}
+          ${p.kids ? " | Kids" : ""}
+          ${p.lanche ? " | Lanche" : ""}
+        </div>
       </div>
 
       <div>
         <button class="btn secondary" onclick="toggleCouple('${c.id}', ${c.ativo})">
           ${c.ativo ? "Desativar" : "Ativar"}
+        </button>
+
+        <button class="btn secondary" onclick="editPermissions('${c.id}')">
+          Permissões
         </button>
 
         <button class="btn danger" onclick="deleteCouple('${c.id}')">
@@ -383,6 +461,27 @@ function renderCouples(){
     couplesList.appendChild(div);
   });
 }
+
+window.editPermissions = async function(id){
+  const c = couples.find(x => x.id === id);
+  if(!c) return;
+
+  const p = normalizePermissions(c);
+
+  const devocional = confirm(`${coupleName(c)} pode fazer DEVOCIONAL?\nOK = Sim | Cancelar = Não`);
+  const estudo = confirm(`${coupleName(c)} pode fazer ESTUDO?\nOK = Sim | Cancelar = Não`);
+  const kids = confirm(`${coupleName(c)} pode fazer KIDS?\nOK = Sim | Cancelar = Não`);
+  const lanche = confirm(`${coupleName(c)} pode fazer LANCHE?\nOK = Sim | Cancelar = Não`);
+
+  await updateDoc(doc(db,"casais",id), {
+    canDevocional:devocional,
+    canEstudo:estudo,
+    canKids:kids,
+    canLanche:lanche
+  });
+
+  await loadCouples();
+};
 
 window.toggleCouple = async function(id, ativo){
   await updateDoc(doc(db,"casais",id), {
@@ -405,6 +504,11 @@ document.getElementById("addBtn").onclick = async () => {
   const nome2 = document.getElementById("nome2").value.trim();
   const ativo = document.getElementById("ativo").value === "true";
 
+  const canDevocional = document.getElementById("canDevocional").checked;
+  const canEstudo = document.getElementById("canEstudo").checked;
+  const canKids = document.getElementById("canKids").checked;
+  const canLanche = document.getElementById("canLanche").checked;
+
   if(!nome1 || !nome2){
     alert("Preencha os dois nomes.");
     return;
@@ -414,11 +518,21 @@ document.getElementById("addBtn").onclick = async () => {
     nome1,
     nome2,
     ativo,
+    canDevocional,
+    canEstudo,
+    canKids,
+    canLanche,
     criadoEm:serverTimestamp()
   });
 
   document.getElementById("nome1").value = "";
   document.getElementById("nome2").value = "";
+  document.getElementById("ativo").value = "true";
+
+  document.getElementById("canDevocional").checked = true;
+  document.getElementById("canEstudo").checked = true;
+  document.getElementById("canKids").checked = true;
+  document.getElementById("canLanche").checked = true;
 
   await loadCouples();
 };
@@ -432,18 +546,30 @@ async function loadPreviousMonthSchedule(){
   return snap.data();
 }
 
-function pickCouple(pool, blockedIds = []){
-  const available = pool.filter(c => !blockedIds.includes(c.id));
+function pickCouple(pool, task, blockedIds = []){
+  const allowed = pool.filter(c =>
+    c.ativo &&
+    canDo(c, task) &&
+    !blockedIds.includes(c.id)
+  );
 
-  if(available.length){
-    return shuffle(available)[0];
+  if(allowed.length){
+    return shuffle(allowed)[0];
+  }
+
+  const fallback = pool.filter(c =>
+    c.ativo &&
+    !blockedIds.includes(c.id)
+  );
+
+  if(fallback.length){
+    return shuffle(fallback)[0];
   }
 
   return shuffle(pool)[0];
 }
 
 async function generateMonthlySchedule(){
-
   const active = couples.filter(c => c.ativo);
 
   if(active.length < 4){
@@ -476,29 +602,28 @@ async function generateMonthlySchedule(){
     }
   }
 
-  tuesdays.forEach((date) => {
-
+  tuesdays.forEach(date => {
     const usedToday = [];
 
-    const devocional = pickCouple(active, [
+    const devocional = pickCouple(active, "devocional", [
       lastIds.devocional,
       ...usedToday
     ]);
     usedToday.push(devocional.id);
 
-    const estudo = pickCouple(active, [
+    const estudo = pickCouple(active, "estudo", [
       lastIds.estudo,
       ...usedToday
     ]);
     usedToday.push(estudo.id);
 
-    const kids = pickCouple(active, [
+    const kids = pickCouple(active, "kids", [
       lastIds.kids,
       ...usedToday
     ]);
     usedToday.push(kids.id);
 
-    const lanche = pickCouple(active, [
+    const lanche = pickCouple(active, "lanche", [
       lastIds.lanche,
       ...usedToday
     ]);
@@ -527,7 +652,6 @@ async function generateMonthlySchedule(){
       kids:kids.id,
       lanche:lanche.id
     };
-
   });
 
   const data = {
@@ -539,13 +663,36 @@ async function generateMonthlySchedule(){
 
   await setDoc(doc(db,"escala",monthKey()), data);
 
-  renderSchedule(data);
+  currentRows = rows;
+  renderEditableSchedule(rows);
 
   alert("Escala mensal gerada com sucesso.");
 }
 
-function renderSchedule(data){
-  if(!data || !data.rows || !data.rows.length){
+function optionsForTask(task, selectedId){
+  const active = couples.filter(c => c.ativo);
+
+  let html = `<option value="">Selecionar</option>`;
+
+  active.forEach(c => {
+    const allowed = canDo(c, task);
+    const selected = c.id === selectedId ? "selected" : "";
+    const label = allowed
+      ? coupleName(c)
+      : `${coupleName(c)} — não recomendado`;
+
+    html += `
+      <option value="${c.id}" ${selected}>
+        ${label}
+      </option>
+    `;
+  });
+
+  return html;
+}
+
+function renderEditableSchedule(rows){
+  if(!rows || !rows.length){
     scheduleBody.innerHTML = `
       <tr>
         <td colspan="5">Nenhuma escala criada para este mês.</td>
@@ -556,14 +703,34 @@ function renderSchedule(data){
 
   scheduleBody.innerHTML = "";
 
-  data.rows.forEach(row => {
+  rows.forEach((row, index) => {
     scheduleBody.innerHTML += `
       <tr>
         <td>${row.displayDate}</td>
-        <td>${row.devocional}</td>
-        <td>${row.estudo}</td>
-        <td>${row.kids}</td>
-        <td>${row.lanche}</td>
+
+        <td>
+          <select data-row="${index}" data-task="devocional">
+            ${optionsForTask("devocional", row.ids?.devocional)}
+          </select>
+        </td>
+
+        <td>
+          <select data-row="${index}" data-task="estudo">
+            ${optionsForTask("estudo", row.ids?.estudo)}
+          </select>
+        </td>
+
+        <td>
+          <select data-row="${index}" data-task="kids">
+            ${optionsForTask("kids", row.ids?.kids)}
+          </select>
+        </td>
+
+        <td>
+          <select data-row="${index}" data-task="lanche">
+            ${optionsForTask("lanche", row.ids?.lanche)}
+          </select>
+        </td>
       </tr>
     `;
   });
@@ -576,11 +743,96 @@ async function loadSchedule(){
   const snap = await getDoc(doc(db,"escala",monthKey()));
 
   if(snap.exists()){
-    renderSchedule(snap.data());
+    const data = snap.data();
+    currentRows = data.rows || [];
+    renderEditableSchedule(currentRows);
   }else{
-    renderSchedule(null);
+    currentRows = [];
+    renderEditableSchedule([]);
   }
 }
+
+function findCoupleById(id){
+  return couples.find(c => c.id === id);
+}
+
+function validateEditedRows(rows){
+  for(let i = 0; i < rows.length; i++){
+    const ids = rows[i].ids;
+
+    const sameDayIds = [
+      ids.devocional,
+      ids.estudo,
+      ids.kids,
+      ids.lanche
+    ];
+
+    const unique = new Set(sameDayIds);
+
+    if(unique.size < sameDayIds.length){
+      return `Erro em ${rows[i].displayDate}: o mesmo casal não pode estar em duas funções no mesmo dia.`;
+    }
+
+    if(i > 0){
+      const prev = rows[i - 1].ids;
+
+      if(ids.devocional === prev.devocional){
+        return `Erro em ${rows[i].displayDate}: Devocional repetiu o casal da terça anterior.`;
+      }
+
+      if(ids.estudo === prev.estudo){
+        return `Erro em ${rows[i].displayDate}: Estudo repetiu o casal da terça anterior.`;
+      }
+
+      if(ids.kids === prev.kids){
+        return `Erro em ${rows[i].displayDate}: Kids repetiu o casal da terça anterior.`;
+      }
+
+      if(ids.lanche === prev.lanche){
+        return `Erro em ${rows[i].displayDate}: Lanche repetiu o casal da terça anterior.`;
+      }
+    }
+  }
+
+  return null;
+}
+
+document.getElementById("saveScheduleBtn").onclick = async () => {
+  if(!currentRows.length){
+    alert("Não existe escala para salvar.");
+    return;
+  }
+
+  const selects = document.querySelectorAll("select[data-row][data-task]");
+
+  selects.forEach(sel => {
+    const index = Number(sel.dataset.row);
+    const task = sel.dataset.task;
+    const id = sel.value;
+    const couple = findCoupleById(id);
+
+    if(!couple) return;
+
+    currentRows[index][task] = coupleName(couple);
+    currentRows[index].ids[task] = couple.id;
+  });
+
+  const error = validateEditedRows(currentRows);
+
+  if(error){
+    alert(error);
+    return;
+  }
+
+  await setDoc(doc(db,"escala",monthKey()), {
+    monthKey:monthKey(),
+    monthLabel:monthLabel(),
+    rows:currentRows,
+    updatedAt:serverTimestamp()
+  });
+
+  alert("Escala editada e salva com sucesso.");
+};
 
 document.getElementById("generateBtn").onclick = generateMonthlySchedule;
 
