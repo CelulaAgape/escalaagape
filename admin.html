@@ -443,6 +443,7 @@ function pickCouple(pool, blockedIds = []){
 }
 
 async function generateMonthlySchedule(){
+
   const active = couples.filter(c => c.ativo);
 
   if(active.length < 4){
@@ -455,42 +456,63 @@ async function generateMonthlySchedule(){
 
   const rows = [];
 
-  tuesdays.forEach((date, index) => {
-    const previousRow = previous?.rows?.[index];
+  let lastIds = {
+    devocional:null,
+    estudo:null,
+    kids:null,
+    lanche:null
+  };
 
-    const pickedIds = [];
+  if(previous?.rows?.length){
+    const lastPreviousRow = previous.rows[previous.rows.length - 1];
+
+    if(lastPreviousRow?.ids){
+      lastIds = {
+        devocional:lastPreviousRow.ids.devocional || null,
+        estudo:lastPreviousRow.ids.estudo || null,
+        kids:lastPreviousRow.ids.kids || null,
+        lanche:lastPreviousRow.ids.lanche || null
+      };
+    }
+  }
+
+  tuesdays.forEach((date) => {
+
+    const usedToday = [];
 
     const devocional = pickCouple(active, [
-      previousRow?.ids?.devocional,
-      ...pickedIds
+      lastIds.devocional,
+      ...usedToday
     ]);
-    pickedIds.push(devocional.id);
+    usedToday.push(devocional.id);
 
     const estudo = pickCouple(active, [
-      previousRow?.ids?.estudo,
-      ...pickedIds
+      lastIds.estudo,
+      ...usedToday
     ]);
-    pickedIds.push(estudo.id);
+    usedToday.push(estudo.id);
 
     const kids = pickCouple(active, [
-      previousRow?.ids?.kids,
-      ...pickedIds
+      lastIds.kids,
+      ...usedToday
     ]);
-    pickedIds.push(kids.id);
+    usedToday.push(kids.id);
 
     const lanche = pickCouple(active, [
-      previousRow?.ids?.lanche,
-      ...pickedIds
+      lastIds.lanche,
+      ...usedToday
     ]);
-    pickedIds.push(lanche.id);
+    usedToday.push(lanche.id);
 
     rows.push({
       dateISO: date.toISOString(),
       displayDate: formatDate(date),
+
       devocional: coupleName(devocional),
       estudo: coupleName(estudo),
       kids: coupleName(kids),
       lanche: coupleName(lanche),
+
       ids:{
         devocional:devocional.id,
         estudo:estudo.id,
@@ -498,6 +520,14 @@ async function generateMonthlySchedule(){
         lanche:lanche.id
       }
     });
+
+    lastIds = {
+      devocional:devocional.id,
+      estudo:estudo.id,
+      kids:kids.id,
+      lanche:lanche.id
+    };
+
   });
 
   const data = {
