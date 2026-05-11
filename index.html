@@ -3,70 +3,45 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>Escala da Célula</title>
 
   <style>
-
     :root{
-      --bg:#dff8d8;
-      --card:#ffffffee;
       --primary:#1f7a4f;
       --accent:#e23d3d;
-      --text:#18302a;
       --muted:#5d6d68;
       --line:#d8e6dc;
       --shadow:0 16px 40px rgba(0,0,0,.12);
-      --radius:24px;
     }
 
-    *{
-      box-sizing:border-box;
-    }
+    *{box-sizing:border-box}
 
     body{
       margin:0;
       font-family:Arial,sans-serif;
-      background:
-      linear-gradient(
-        180deg,
-        #8be15f 0%,
-        #dff8d8 100%
-      );
-
+      background:linear-gradient(180deg,#8be15f 0%,#dff8d8 100%);
       min-height:100vh;
-      color:var(--text);
+      color:#18302a;
     }
 
-    .entry-screen{
+    .entry{
       position:fixed;
       inset:0;
-      z-index:9999;
-
+      z-index:999;
       display:flex;
       align-items:center;
       justify-content:center;
-
-      background:
-      linear-gradient(
-        180deg,
-        #8be15f 0%,
-        #dff8d8 100%
-      );
-
       padding:20px;
+      background:linear-gradient(180deg,#8be15f 0%,#dff8d8 100%);
     }
 
     .entry-box{
-      width:min(500px,100%);
+      width:min(520px,100%);
       background:rgba(255,255,255,.9);
       border-radius:32px;
       padding:35px;
-
       text-align:center;
-
-      box-shadow:
-      0 20px 50px rgba(0,0,0,.15);
+      box-shadow:var(--shadow);
     }
 
     .entry-box h1{
@@ -77,29 +52,17 @@
 
     .entry-box p{
       color:var(--muted);
-      margin-top:10px;
     }
 
-    .entry-buttons{
-      display:grid;
-      gap:15px;
-      margin-top:30px;
-    }
-
-    .entry-btn{
+    .entry button{
+      width:100%;
       border:none;
-      border-radius:18px;
       padding:18px;
-
+      border-radius:18px;
+      margin-top:14px;
       font-size:1rem;
-      font-weight:700;
-
+      font-weight:800;
       cursor:pointer;
-      transition:.2s;
-    }
-
-    .entry-btn:hover{
-      transform:translateY(-2px);
     }
 
     .member{
@@ -115,26 +78,21 @@
 
     .main{
       display:none;
-      padding:20px;
-      max-width:1100px;
+      max-width:1200px;
       margin:0 auto;
+      padding:20px;
     }
 
     .hero{
-      background:rgba(255,255,255,.85);
+      background:rgba(255,255,255,.88);
       border-radius:32px;
-      padding:30px;
+      padding:28px;
       box-shadow:var(--shadow);
-
       margin-bottom:20px;
-    }
-
-    .hero-top{
       display:flex;
       justify-content:space-between;
       gap:20px;
       flex-wrap:wrap;
-      align-items:flex-start;
     }
 
     h2{
@@ -143,48 +101,53 @@
       font-size:3rem;
     }
 
-    .clock{
-      text-align:right;
+    .muted{
+      color:var(--muted);
+      font-weight:700;
+      margin-top:8px;
     }
 
-    .time{
-      font-size:2rem;
+    .clock{
+      text-align:right;
       font-weight:900;
       color:var(--primary);
+      font-size:2rem;
     }
 
     .date{
       color:var(--muted);
+      font-size:1rem;
       font-weight:700;
     }
 
     .card{
-      background:rgba(255,255,255,.85);
-      border-radius:32px;
-      overflow:hidden;
+      background:rgba(255,255,255,.88);
+      border-radius:28px;
       box-shadow:var(--shadow);
+      overflow:hidden;
     }
 
     .card-head{
-      padding:20px;
-      border-bottom:1px solid var(--line);
+      padding:18px;
       background:white;
-      font-weight:700;
+      border-bottom:1px solid var(--line);
+      font-weight:900;
+      color:var(--primary);
     }
 
     .card-body{
-      padding:20px;
+      padding:18px;
+      overflow-x:auto;
     }
 
     table{
       width:100%;
       border-collapse:collapse;
       background:white;
-      border-radius:18px;
-      overflow:hidden;
+      min-width:760px;
     }
 
-    th, td{
+    th,td{
       border:1px solid var(--line);
       padding:14px;
       text-align:center;
@@ -192,295 +155,186 @@
 
     th{
       background:#f4fff4;
+      color:var(--primary);
     }
 
-    .week{
-      margin-top:15px;
-      color:var(--muted);
-      font-weight:700;
+    td:first-child{
+      color:var(--accent);
+      font-weight:900;
     }
 
-    .loading{
-      text-align:center;
-      color:var(--muted);
-      padding:20px;
+    @media(max-width:800px){
+      h2{font-size:2.2rem}
+      .clock{text-align:left}
     }
-
-    @media(max-width:900px){
-
-      h2{
-        font-size:2.2rem;
-      }
-
-      .hero-top{
-        flex-direction:column;
-      }
-
-      .clock{
-        text-align:left;
-      }
-
-    }
-
   </style>
 </head>
 
 <body>
 
-<div class="entry-screen" id="entryScreen">
-
+<div class="entry" id="entry">
   <div class="entry-box">
-
     <h1>Bem-vindo</h1>
+    <p>Escolha como deseja acessar a escala da célula.</p>
 
-    <p>
-      Escolha como deseja acessar
-    </p>
-
-    <div class="entry-buttons">
-
-      <button
-        class="entry-btn member"
-        id="memberBtn"
-      >
-        Sou membro
-      </button>
-
-      <button
-        class="entry-btn leader"
-        id="leaderBtn"
-      >
-        Sou líder
-      </button>
-
-    </div>
-
+    <button class="member" id="memberBtn">Sou membro</button>
+    <button class="leader" id="leaderBtn">Sou líder</button>
   </div>
-
 </div>
 
-<div class="main" id="mainContent">
+<div class="main" id="main">
 
   <section class="hero">
-
-    <div class="hero-top">
-
-      <div>
-        <h2>
-          Escala da Célula
-        </h2>
-
-        <div class="week" id="weekInfo">
-          Carregando semana...
-        </div>
-      </div>
-
-      <div class="clock">
-
-        <div class="time" id="time">
-          --:--:--
-        </div>
-
-        <div class="date" id="date">
-          --
-        </div>
-
-      </div>
-
+    <div>
+      <h2>Escala da Célula</h2>
+      <div class="muted" id="monthInfo">Carregando mês...</div>
     </div>
 
+    <div>
+      <div class="clock" id="clock">--:--:--</div>
+      <div class="date" id="date">--</div>
+    </div>
   </section>
 
   <section class="card">
-
     <div class="card-head">
-      Escala Atual
+      Escala mensal — Terças-feiras
     </div>
 
     <div class="card-body">
-
       <table>
-
         <thead>
-
           <tr>
-            <th>Semana</th>
+            <th>Data</th>
             <th>Devocional</th>
             <th>Estudo</th>
             <th>Kids</th>
             <th>Lanche</th>
           </tr>
-
         </thead>
 
         <tbody id="scheduleBody">
-
           <tr>
-            <td colspan="5" class="loading">
-              Carregando escala...
-            </td>
+            <td colspan="5">Carregando escala...</td>
           </tr>
-
         </tbody>
-
       </table>
-
     </div>
-
   </section>
 
 </div>
 
 <script type="module">
-
 import { db } from './firebase.js';
 
 import {
   doc,
   getDoc,
   onSnapshot
-}
-from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-const entryScreen =
-document.getElementById("entryScreen");
+const TZ = "America/Sao_Paulo";
 
-const mainContent =
-document.getElementById("mainContent");
+const entry = document.getElementById("entry");
+const main = document.getElementById("main");
+const scheduleBody = document.getElementById("scheduleBody");
 
-document
-.getElementById("memberBtn")
-.addEventListener("click", ()=>{
+document.getElementById("memberBtn").onclick = () => {
+  entry.style.display = "none";
+  main.style.display = "block";
+};
 
-  entryScreen.style.display = "none";
-  mainContent.style.display = "block";
-});
+document.getElementById("leaderBtn").onclick = () => {
+  window.location.href = "./login.html";
+};
 
-document
-.getElementById("leaderBtn")
-.addEventListener("click", ()=>{
-
-  window.location.href =
-  "./login.html";
-});
-
-function getRioDate(){
-
+function rioDate(){
   return new Date(
-    new Date().toLocaleString(
-      "en-US",
-      {
-        timeZone:"America/Sao_Paulo"
-      }
-    )
+    new Date().toLocaleString("en-US", {
+      timeZone: TZ
+    })
   );
+}
+
+function monthKey(){
+  const d = rioDate();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2,"0");
+  return `${y}-${m}`;
+}
+
+function monthLabel(){
+  return rioDate().toLocaleDateString("pt-BR", {
+    month:"long",
+    year:"numeric"
+  });
 }
 
 function updateClock(){
+  const d = rioDate();
 
-  const now = getRioDate();
+  document.getElementById("clock").innerText =
+  d.toLocaleTimeString("pt-BR");
 
-  document.getElementById("time")
-  .innerText =
-  now.toLocaleTimeString("pt-BR");
-
-  document.getElementById("date")
-  .innerText =
-  now.toLocaleDateString(
-    "pt-BR",
-    {
-      weekday:"long",
-      year:"numeric",
-      month:"long",
-      day:"numeric"
-    }
-  );
+  document.getElementById("date").innerText =
+  d.toLocaleDateString("pt-BR", {
+    weekday:"long",
+    day:"2-digit",
+    month:"long",
+    year:"numeric"
+  });
 }
 
-setInterval(updateClock,1000);
-updateClock();
+function renderSchedule(data){
+  if(!data || !data.rows || !data.rows.length){
+    scheduleBody.innerHTML = `
+      <tr>
+        <td colspan="5">Nenhuma escala disponível para este mês.</td>
+      </tr>
+    `;
+    return;
+  }
 
-function getWeekKey(){
+  scheduleBody.innerHTML = "";
 
-  const date = getRioDate();
-
-  const firstDay =
-  new Date(date.getFullYear(),0,1);
-
-  const days =
-  Math.floor((date - firstDay)/86400000);
-
-  const week =
-  Math.ceil((days + firstDay.getDay()+1)/7);
-
-  return `${date.getFullYear()}-W${week}`;
+  data.rows.forEach(row => {
+    scheduleBody.innerHTML += `
+      <tr>
+        <td>${row.displayDate}</td>
+        <td>${row.devocional}</td>
+        <td>${row.estudo}</td>
+        <td>${row.kids}</td>
+        <td>${row.lanche}</td>
+      </tr>
+    `;
+  });
 }
-
-const weekKey = getWeekKey();
-
-document.getElementById("weekInfo")
-.innerText =
-`Semana atual: ${weekKey}`;
-
-const scheduleBody =
-document.getElementById("scheduleBody");
 
 async function loadSchedule(){
+  const key = monthKey();
 
-  const snap =
-  await getDoc(
-    doc(db,"escala",weekKey)
-  );
+  document.getElementById("monthInfo").innerText =
+  `Mês atual: ${monthLabel()} | Código: ${key}`;
 
-  if(!snap.exists()){
+  const ref = doc(db, "escala", key);
+  const snap = await getDoc(ref);
 
-    scheduleBody.innerHTML = `
-      <tr>
-        <td colspan="5">
-          Nenhuma escala disponível.
-        </td>
-      </tr>
-    `;
-
-    return;
+  if(snap.exists()){
+    renderSchedule(snap.data());
+  }else{
+    renderSchedule(null);
   }
 
-  const data = snap.data();
-
-  scheduleBody.innerHTML = `
-    <tr>
-      <td>${data.weekKey}</td>
-      <td>${data.devocional}</td>
-      <td>${data.estudo}</td>
-      <td>${data.kids}</td>
-      <td>${data.lanche}</td>
-    </tr>
-  `;
+  onSnapshot(ref, snapLive => {
+    if(snapLive.exists()){
+      renderSchedule(snapLive.data());
+    }
+  });
 }
 
-onSnapshot(
-  doc(db,"escala",weekKey),
-  (snap)=>{
-
-    if(!snap.exists())
-    return;
-
-    const data = snap.data();
-
-    scheduleBody.innerHTML = `
-      <tr>
-        <td>${data.weekKey}</td>
-        <td>${data.devocional}</td>
-        <td>${data.estudo}</td>
-        <td>${data.kids}</td>
-        <td>${data.lanche}</td>
-      </tr>
-    `;
-  }
-);
-
+updateClock();
+setInterval(updateClock,1000);
 loadSchedule();
-
 </script>
 
 </body>
