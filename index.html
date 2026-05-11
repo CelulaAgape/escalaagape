@@ -1,15 +1,17 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>Escala da Célula</title>
+
   <style>
+
     :root{
       --bg:#dff8d8;
       --card:#ffffffee;
       --primary:#1f7a4f;
-      --primary2:#6ccf63;
       --accent:#e23d3d;
       --text:#18302a;
       --muted:#5d6d68;
@@ -17,687 +19,469 @@
       --shadow:0 16px 40px rgba(0,0,0,.12);
       --radius:24px;
     }
-    *{box-sizing:border-box}
+
+    *{
+      box-sizing:border-box;
+    }
+
     body{
       margin:0;
-      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      color:var(--text);
+      font-family:Arial,sans-serif;
       background:
-        radial-gradient(circle at top left, rgba(255,255,255,.65) 0 8%, transparent 8% 100%),
-        linear-gradient(180deg, #8be15f 0%, #9be868 20%, #dff8d8 100%);
+      linear-gradient(
+        180deg,
+        #8be15f 0%,
+        #dff8d8 100%
+      );
+
       min-height:100vh;
+      color:var(--text);
     }
-    .wrap{max-width:1280px;margin:0 auto;padding:18px}
-    .hero{
-      position:relative;
-      overflow:hidden;
-      border-radius:32px;
-      background:linear-gradient(135deg, rgba(255,255,255,.82), rgba(255,255,255,.62));
-      box-shadow:var(--shadow);
-      border:1px solid rgba(255,255,255,.55);
-      padding:24px;
-      backdrop-filter: blur(8px);
-    }
-    .hero-top{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap}
-    .title-block h1{
-      margin:0;
-      font-size:clamp(2rem, 6vw, 4.5rem);
-      line-height:1;
-      color:var(--primary);
-      letter-spacing:-.04em;
-    }
-    .title-block p{margin:10px 0 0;color:var(--muted);font-weight:600}
-    .pill-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
-    .pill{
-      background:#fff;
-      border:1px solid var(--line);
-      border-radius:999px;
-      padding:10px 14px;
-      box-shadow:0 8px 20px rgba(0,0,0,.06);
-      font-weight:700;
-      font-size:.92rem;
-    }
-    .clock{min-width:260px;text-align:right}
-    .clock .now{font-size:1rem;color:var(--muted);font-weight:700}
-    .clock .time{font-size:2rem;font-weight:900;color:var(--primary)}
-    .clock .date{font-size:.95rem;color:var(--muted);margin-top:4px}
-    .admin-bar{
-      margin-top:18px;
-      display:grid;
-      grid-template-columns: 1.2fr 1fr 1fr auto;
-      gap:10px;
+
+    .entry-screen{
+      position:fixed;
+      inset:0;
+      z-index:9999;
+
+      display:flex;
       align-items:center;
-      background:rgba(255,255,255,.78);
-      border:1px solid rgba(0,0,0,.06);
-      border-radius:22px;
-      padding:12px;
+      justify-content:center;
+
+      background:
+      linear-gradient(
+        180deg,
+        #8be15f 0%,
+        #dff8d8 100%
+      );
+
+      padding:20px;
     }
-    .admin-bar input, .admin-bar button, .panel input, .panel select, .panel textarea, .modal input, .modal textarea{
-      width:100%;
+
+    .entry-box{
+      width:min(500px,100%);
+      background:rgba(255,255,255,.9);
+      border-radius:32px;
+      padding:35px;
+
+      text-align:center;
+
+      box-shadow:
+      0 20px 50px rgba(0,0,0,.15);
+    }
+
+    .entry-box h1{
+      margin:0;
+      color:var(--primary);
+      font-size:3rem;
+    }
+
+    .entry-box p{
+      color:var(--muted);
+      margin-top:10px;
+    }
+
+    .entry-buttons{
+      display:grid;
+      gap:15px;
+      margin-top:30px;
+    }
+
+    .entry-btn{
       border:none;
-      outline:none;
-      border-radius:16px;
-      padding:14px 14px;
-      font:inherit;
-      background:#fff;
+      border-radius:18px;
+      padding:18px;
+
+      font-size:1rem;
+      font-weight:700;
+
+      cursor:pointer;
+      transition:.2s;
+    }
+
+    .entry-btn:hover{
+      transform:translateY(-2px);
+    }
+
+    .member{
+      background:var(--primary);
+      color:white;
+    }
+
+    .leader{
+      background:white;
+      color:var(--primary);
       border:1px solid var(--line);
     }
-    .admin-bar button, .btn{
-      cursor:pointer;
-      background:linear-gradient(135deg, var(--primary), #2ca36c);
-      color:#fff;
-      font-weight:800;
-      border:none;
-      transition:transform .15s ease, filter .15s ease, opacity .15s ease;
+
+    .main{
+      display:none;
+      padding:20px;
+      max-width:1100px;
+      margin:0 auto;
     }
-    .admin-bar button:hover, .btn:hover{transform:translateY(-1px);filter:brightness(1.02)}
-    .admin-bar button.secondary, .btn.secondary{background:#fff;color:var(--primary);border:1px solid var(--line)}
-    .grid{
-      margin-top:18px;
-      display:grid;
-      grid-template-columns: 1.1fr .9fr;
-      gap:18px;
-    }
-    .card{
-      background:var(--card);
-      border:1px solid rgba(0,0,0,.06);
-      border-radius:var(--radius);
+
+    .hero{
+      background:rgba(255,255,255,.85);
+      border-radius:32px;
+      padding:30px;
       box-shadow:var(--shadow);
+
+      margin-bottom:20px;
+    }
+
+    .hero-top{
+      display:flex;
+      justify-content:space-between;
+      gap:20px;
+      flex-wrap:wrap;
+      align-items:flex-start;
+    }
+
+    h2{
+      margin:0;
+      color:var(--primary);
+      font-size:3rem;
+    }
+
+    .clock{
+      text-align:right;
+    }
+
+    .time{
+      font-size:2rem;
+      font-weight:900;
+      color:var(--primary);
+    }
+
+    .date{
+      color:var(--muted);
+      font-weight:700;
+    }
+
+    .card{
+      background:rgba(255,255,255,.85);
+      border-radius:32px;
+      overflow:hidden;
+      box-shadow:var(--shadow);
+    }
+
+    .card-head{
+      padding:20px;
+      border-bottom:1px solid var(--line);
+      background:white;
+      font-weight:700;
+    }
+
+    .card-body{
+      padding:20px;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      background:white;
+      border-radius:18px;
       overflow:hidden;
     }
-    .card h2, .card h3{margin:0}
-    .section-head{
-      display:flex;justify-content:space-between;align-items:center;gap:12px;
-      padding:18px 18px 14px;
-      border-bottom:1px solid var(--line);
-      background:linear-gradient(180deg, rgba(255,255,255,.86), rgba(255,255,255,.55));
+
+    th, td{
+      border:1px solid var(--line);
+      padding:14px;
+      text-align:center;
     }
-    .section-head p{margin:6px 0 0;color:var(--muted);font-weight:600}
-    .controls{display:flex;gap:10px;flex-wrap:wrap}
-    .btn{padding:12px 14px;border-radius:14px;white-space:nowrap}
-    .panel{padding:18px}
-    .panel-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-    .panel-grid-1{display:grid;grid-template-columns:1fr;gap:12px}
-    .list{display:grid;gap:10px;margin-top:14px}
-    .item{
-      display:flex;justify-content:space-between;gap:10px;align-items:center;
-      padding:12px 14px;border:1px solid var(--line);border-radius:16px;background:#fff;
+
+    th{
+      background:#f4fff4;
     }
-    .tag{font-size:.8rem;font-weight:800;color:var(--primary);background:#e6fbef;padding:6px 10px;border-radius:999px}
-    .tag.off{color:#7a6270;background:#f6eef4}
-    .tiny{font-size:.88rem;color:var(--muted)}
-    .schedule-wrap{padding:18px}
-    .week-nav{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
-    .week-nav .label{font-weight:800;color:var(--primary)}
-    table{width:100%;border-collapse:separate;border-spacing:0;overflow:hidden;border-radius:18px;border:1px solid var(--line);background:#fff}
-    th,td{padding:14px 12px;border-bottom:1px solid var(--line);border-right:1px solid var(--line);text-align:center;vertical-align:middle}
-    th:last-child, td:last-child{border-right:none}
-    tr:last-child td{border-bottom:none}
-    thead th{background:#f4fff4;font-size:.96rem}
-    tbody td:first-child{font-weight:900;color:var(--accent)}
-    .empty{color:#8f9b97;font-style:italic}
-    .footer-note{margin-top:14px;color:var(--muted);font-size:.9rem;line-height:1.5}
-    .locked{
-      display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;
-      background:#fff0d8;color:#8b5a00;font-weight:800;font-size:.88rem
+
+    .week{
+      margin-top:15px;
+      color:var(--muted);
+      font-weight:700;
     }
-    .ok{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:#e4faec;color:#1b6d3b;font-weight:800;font-size:.88rem}
-    .overlay{
-      position:fixed;inset:0;background:rgba(10,20,16,.55);display:none;align-items:center;justify-content:center;padding:18px;z-index:50;
+
+    .loading{
+      text-align:center;
+      color:var(--muted);
+      padding:20px;
     }
-    .overlay.show{display:flex}
-    .modal{
-      width:min(760px,100%);background:#fff;border-radius:28px;box-shadow:0 30px 80px rgba(0,0,0,.22);overflow:hidden;
+
+    @media(max-width:900px){
+
+      h2{
+        font-size:2.2rem;
+      }
+
+      .hero-top{
+        flex-direction:column;
+      }
+
+      .clock{
+        text-align:left;
+      }
+
     }
-    .modal .head{padding:18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px}
-    .modal .body{padding:18px}
-    .modal .foot{padding:18px;border-top:1px solid var(--line);display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
-    .muted-box{
-      background:#f7faf8;border:1px dashed #d7e6db;border-radius:18px;padding:14px;color:var(--muted)
-    }
-    .badges{display:flex;gap:10px;flex-wrap:wrap}
-    .hide{display:none !important}
-    @media (max-width: 980px){
-      .grid{grid-template-columns:1fr}
-      .admin-bar{grid-template-columns:1fr 1fr}
-      .clock{text-align:left;min-width:unset}
-      .panel-grid{grid-template-columns:1fr}
-    }
-    @media (max-width: 640px){
-      .admin-bar{grid-template-columns:1fr}
-      th,td{padding:10px 8px;font-size:.9rem}
-      .section-head{flex-direction:column;align-items:flex-start}
-    }
+
   </style>
 </head>
+
 <body>
-  <div id="entryScreen" style="position:fixed;inset:0;z-index:9999;background:linear-gradient(180deg,#8be15f 0%,#dff8d8 100%);display:flex;align-items:center;justify-content:center;padding:20px;">
-    <div style="width:min(520px,100%);background:rgba(255,255,255,.88);backdrop-filter:blur(10px);border-radius:32px;padding:32px;box-shadow:0 20px 50px rgba(0,0,0,.15);text-align:center;border:1px solid rgba(255,255,255,.6);">
-      <h1 style="margin:0;color:#1f7a4f;font-size:clamp(2rem,6vw,3.6rem);">Bem-vindo</h1>
-      <p style="color:#5d6d68;font-weight:600;margin-top:10px;">Escolha como deseja entrar no sistema da célula.</p>
 
-      <div style="display:grid;gap:14px;margin-top:28px;">
-        <button id="memberBtn" style="border:none;padding:18px;border-radius:18px;font-size:1.05rem;font-weight:800;cursor:pointer;background:linear-gradient(135deg,#1f7a4f,#2ca36c);color:white;box-shadow:0 10px 24px rgba(0,0,0,.12);">
-          Sou membro
-        </button>
+<div class="entry-screen" id="entryScreen">
 
-        <button id="leaderBtn" style="border:none;padding:18px;border-radius:18px;font-size:1.05rem;font-weight:800;cursor:pointer;background:white;color:#1f7a4f;border:1px solid #d8e6dc;box-shadow:0 10px 24px rgba(0,0,0,.08);">
-          Sou líder
-        </button>
-      </div>
+  <div class="entry-box">
+
+    <h1>Bem-vindo</h1>
+
+    <p>
+      Escolha como deseja acessar
+    </p>
+
+    <div class="entry-buttons">
+
+      <button
+        class="entry-btn member"
+        id="memberBtn"
+      >
+        Sou membro
+      </button>
+
+      <button
+        class="entry-btn leader"
+        id="leaderBtn"
+      >
+        Sou líder
+      </button>
+
     </div>
+
   </div>
 
-  <div class="wrap">
-    <section class="hero">
-      <div class="hero-top">
-        <div class="title-block">
-          <div class="badges">
-            <span class="ok">✓ Time do Rio conectado</span>
-            <span id="authState" class="locked">🔒 Admin não autenticado</span>
-          </div>
-          <h1>Escala da Célula</h1>
-          <p>Escala semanal automática por casal, sem repetir a semana anterior.</p>
-          <div class="pill-row">
-            <span class="pill">Atualização automática toda semana</span>
-            <span class="pill">Armazenamento local no navegador</span>
-            <span class="pill">Pronto para GitHub Pages</span>
-          </div>
-        </div>
-        <div class="clock">
-          <div class="now">Hora oficial do Rio de Janeiro</div>
-          <div id="clock" class="time">--:--:--</div>
-          <div id="today" class="date">--</div>
+</div>
+
+<div class="main" id="mainContent">
+
+  <section class="hero">
+
+    <div class="hero-top">
+
+      <div>
+        <h2>
+          Escala da Célula
+        </h2>
+
+        <div class="week" id="weekInfo">
+          Carregando semana...
         </div>
       </div>
 
-      <div class="admin-bar">
-        <input id="adminUser" placeholder="Usuário admin" value="admin" />
-        <input id="adminPass" placeholder="Senha admin" type="password" value="1234" />
-        <button id="loginBtn">Entrar como admin</button>
-        <button id="logoutBtn" class="secondary hide">Sair</button>
+      <div class="clock">
+
+        <div class="time" id="time">
+          --:--:--
+        </div>
+
+        <div class="date" id="date">
+          --
+        </div>
+
       </div>
-    </section>
 
-    <div class="grid">
-      <section class="card">
-        <div class="section-head">
-          <div>
-            <h2>Escala semanal</h2>
-            <p id="weekInfo">Carregando...</p>
-          </div>
-          <div class="controls">
-            <button id="regenBtn" class="btn secondary">Gerar próxima semana</button>
-            <button id="resetBtn" class="btn secondary">Resetar dados</button>
-          </div>
-        </div>
-        <div class="schedule-wrap">
-          <div class="week-nav">
-            <span class="label">Semana ativa:</span>
-            <span id="activeWeek" class="pill">—</span>
-            <span id="weekStatus" class="pill">—</span>
-          </div>
-          <table>
-            <thead>
-              <tr>
-                <th>ESCALA</th>
-                <th>Devocional</th>
-                <th>Estudo</th>
-                <th>Kids</th>
-                <th>Lanche</th>
-              </tr>
-            </thead>
-            <tbody id="scheduleBody"></tbody>
-          </table>
-          <div class="footer-note">
-            A rotação é aleatória, mas respeita a regra de não repetir a escala da semana anterior. Se houver poucos casais, o sistema embaralha até encontrar uma combinação válida.
-          </div>
-        </div>
-      </section>
-
-      <section class="card">
-        <div class="section-head">
-          <div>
-            <h2>Painel do admin</h2>
-            <p>Adicionar casais, marcar quem pode ser escalado e controlar a base de membros.</p>
-          </div>
-        </div>
-        <div class="panel">
-          <div class="panel-grid">
-            <input id="coupleA" placeholder="Nome 1" />
-            <input id="coupleB" placeholder="Nome 2" />
-          </div>
-          <div class="panel-grid" style="margin-top:12px;">
-            <select id="eligible">
-              <option value="true">Pode ser escalado</option>
-              <option value="false">Não pode ser escalado</option>
-            </select>
-            <button id="addCoupleBtn" class="btn">Adicionar casal</button>
-          </div>
-
-          <div style="margin-top:16px" class="muted-box">
-            <strong>Como funciona o acesso:</strong> cada casal cadastrado é um acesso. Quando o admin marca “não pode ser escalado”, esse casal continua no sistema, mas não entra nas montagens da semana.
-          </div>
-
-          <div style="margin-top:16px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-            <input id="search" placeholder="Buscar casal..." />
-            <button id="exportBtn" class="btn secondary">Exportar JSON</button>
-          </div>
-
-          <div id="coupleList" class="list"></div>
-        </div>
-      </section>
     </div>
-  </div>
 
-  <div id="modal" class="overlay">
-    <div class="modal">
-      <div class="head">
-        <strong>Editar casal</strong>
-        <button id="closeModal" class="btn secondary" style="padding:10px 12px">Fechar</button>
-      </div>
-      <div class="body">
-        <div class="panel-grid">
-          <input id="editA" placeholder="Nome 1" />
-          <input id="editB" placeholder="Nome 2" />
-        </div>
-        <div class="panel-grid" style="margin-top:12px;">
-          <select id="editEligible">
-            <option value="true">Pode ser escalado</option>
-            <option value="false">Não pode ser escalado</option>
-          </select>
-          <input id="editNote" placeholder="Observação opcional" />
-        </div>
-      </div>
-      <div class="foot">
-        <button id="deleteCoupleBtn" class="btn secondary">Excluir casal</button>
-        <button id="saveCoupleBtn" class="btn">Salvar</button>
-      </div>
+  </section>
+
+  <section class="card">
+
+    <div class="card-head">
+      Escala Atual
     </div>
-  </div>
 
-  <script>
-    // =========================
-    //  CONFIGURAÇÃO PRINCIPAL
-    // =========================
-    const STORAGE_KEY = 'escala_celula_v1';
-    const ADMIN_USER = 'admin';
-    const ADMIN_PASS = '1234';
-    const TZ = 'America/Sao_Paulo';
-    const DAYS = ['05/05','12/05','19/05','26/05'];
-    const TASKS = ['Devocional', 'Estudo', 'Kids', 'Lanche'];
+    <div class="card-body">
 
-    const defaultCouples = [
-      { id: crypto.randomUUID(), a: 'Robon', b: 'Michele', eligible: true, note: '' },
-      { id: crypto.randomUUID(), a: 'Luciano', b: 'Renata', eligible: true, note: '' },
-      { id: crypto.randomUUID(), a: 'Joel', b: 'Vivian', eligible: true, note: '' },
-      { id: crypto.randomUUID(), a: 'Marcus', b: 'Thaty', eligible: true, note: '' },
-      { id: crypto.randomUUID(), a: 'Aldo', b: 'Claudia', eligible: true, note: '' },
-      { id: crypto.randomUUID(), a: 'Fernando', b: 'Elaine', eligible: true, note: '' },
-    ];
+      <table>
 
-    const state = {
-      auth: false,
-      couples: [],
-      schedule: [],
-      weekKey: '',
-      lastGeneratedWeekKey: '',
-      editId: null,
-    };
+        <thead>
 
-    const el = (id) => document.getElementById(id);
-    const fmt = new Intl.DateTimeFormat('pt-BR', {
-      timeZone: TZ,
-      dateStyle: 'full',
-      timeStyle: 'medium'
-    });
+          <tr>
+            <th>Semana</th>
+            <th>Devocional</th>
+            <th>Estudo</th>
+            <th>Kids</th>
+            <th>Lanche</th>
+          </tr>
 
-    function loadState(){
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if(!raw){
-        state.couples = defaultCouples;
-        state.schedule = [];
-        state.weekKey = getWeekKey();
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ couples: state.couples, schedule: [], weekKey: state.weekKey, lastGeneratedWeekKey: '' }));
-        return;
+        </thead>
+
+        <tbody id="scheduleBody">
+
+          <tr>
+            <td colspan="5" class="loading">
+              Carregando escala...
+            </td>
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </section>
+
+</div>
+
+<script type="module">
+
+import { db } from './firebase.js';
+
+import {
+  doc,
+  getDoc,
+  onSnapshot
+}
+from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+const entryScreen =
+document.getElementById("entryScreen");
+
+const mainContent =
+document.getElementById("mainContent");
+
+document
+.getElementById("memberBtn")
+.addEventListener("click", ()=>{
+
+  entryScreen.style.display = "none";
+  mainContent.style.display = "block";
+});
+
+document
+.getElementById("leaderBtn")
+.addEventListener("click", ()=>{
+
+  window.location.href =
+  "./login.html";
+});
+
+function getRioDate(){
+
+  return new Date(
+    new Date().toLocaleString(
+      "en-US",
+      {
+        timeZone:"America/Sao_Paulo"
       }
-      try{
-        const data = JSON.parse(raw);
-        state.couples = Array.isArray(data.couples) ? data.couples : defaultCouples;
-        state.schedule = Array.isArray(data.schedule) ? data.schedule : [];
-        state.weekKey = data.weekKey || getWeekKey();
-        state.lastGeneratedWeekKey = data.lastGeneratedWeekKey || '';
-      }catch{
-        state.couples = defaultCouples;
-        state.schedule = [];
-        state.weekKey = getWeekKey();
-      }
+    )
+  );
+}
+
+function updateClock(){
+
+  const now = getRioDate();
+
+  document.getElementById("time")
+  .innerText =
+  now.toLocaleTimeString("pt-BR");
+
+  document.getElementById("date")
+  .innerText =
+  now.toLocaleDateString(
+    "pt-BR",
+    {
+      weekday:"long",
+      year:"numeric",
+      month:"long",
+      day:"numeric"
     }
+  );
+}
 
-    function saveState(){
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({
-        couples: state.couples,
-        schedule: state.schedule,
-        weekKey: state.weekKey,
-        lastGeneratedWeekKey: state.lastGeneratedWeekKey,
-      }));
-    }
+setInterval(updateClock,1000);
+updateClock();
 
-    function getRioNow(){
-      return new Date(new Date().toLocaleString('en-US', { timeZone: TZ }));
-    }
+function getWeekKey(){
 
-    function getWeekKey(date = getRioNow()){
-      // ISO-like week key in Rio timezone (year + week number)
-      const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-      const dayNum = d.getUTCDay() || 7;
-      d.setUTCDate(d.getUTCDate() + 4 - dayNum);
-      const yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
-      const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
-      return `${d.getUTCFullYear()}-W${String(weekNo).padStart(2, '0')}`;
-    }
+  const date = getRioDate();
 
-    function shuffle(arr){
-      const a = [...arr];
-      for(let i=a.length-1; i>0; i--){
-        const j = Math.floor(Math.random()*(i+1));
-        [a[i], a[j]] = [a[j], a[i]];
-      }
-      return a;
-    }
+  const firstDay =
+  new Date(date.getFullYear(),0,1);
 
-    function arraysEqual(a,b){
-      return JSON.stringify(a) === JSON.stringify(b);
-    }
+  const days =
+  Math.floor((date - firstDay)/86400000);
 
-    function buildScheduleForWeek(){
-      const eligible = state.couples.filter(c => c.eligible);
-      if(eligible.length < TASKS.length){
-        return null;
-      }
+  const week =
+  Math.ceil((days + firstDay.getDay()+1)/7);
 
-      const previous = state.schedule?.length ? state.schedule[state.schedule.length-1].assignments.map(x => x.id) : [];
-      let attempt = 0;
-      while(attempt < 200){
-        attempt++;
-        const shuffled = shuffle(eligible);
-        const picks = shuffled.slice(0, TASKS.length);
-        const ids = picks.map(x => x.id);
-        if(!arraysEqual(ids, previous)){
-          return {
-            weekKey: getWeekKey(),
-            generatedAt: new Date().toISOString(),
-            assignments: TASKS.map((task, i) => ({ task, ...picks[i] }))
-          };
-        }
-      }
-      return null;
-    }
+  return `${date.getFullYear()}-W${week}`;
+}
 
-    function ensureCurrentWeekSchedule(){
-      const currentWeek = getWeekKey();
-      state.weekKey = currentWeek;
-      const existing = state.schedule.find(s => s.weekKey === currentWeek);
-      if(!existing){
-        const next = buildScheduleForWeek();
-        if(next){
-          state.schedule.push(next);
-          state.lastGeneratedWeekKey = currentWeek;
-          saveState();
-        }
-      }
-    }
+const weekKey = getWeekKey();
 
-    function renderClock(){
-      const now = getRioNow();
-      el('clock').textContent = now.toLocaleTimeString('pt-BR', { timeZone: TZ });
-      el('today').textContent = now.toLocaleDateString('pt-BR', {
-        timeZone: TZ,
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      });
-    }
+document.getElementById("weekInfo")
+.innerText =
+`Semana atual: ${weekKey}`;
 
-    function currentSchedule(){
-      return state.schedule.find(s => s.weekKey === state.weekKey) || null;
-    }
+const scheduleBody =
+document.getElementById("scheduleBody");
 
-    function renderSchedule(){
-      const sch = currentSchedule();
-      el('activeWeek').textContent = state.weekKey || '—';
-      el('weekInfo').textContent = sch ? `Escala gerada em ${new Date(sch.generatedAt).toLocaleString('pt-BR')}` : 'Nenhuma escala para a semana atual.';
-      el('weekStatus').textContent = sch ? 'Semana pronta' : 'Sem escala';
+async function loadSchedule(){
 
-      const body = el('scheduleBody');
-      body.innerHTML = '';
+  const snap =
+  await getDoc(
+    doc(db,"escala",weekKey)
+  );
 
-      if(!sch){
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td colspan="5" class="empty">Nenhuma escala encontrada. Clique em “Gerar próxima semana”.</td>`;
-        body.appendChild(tr);
-        return;
-      }
+  if(!snap.exists()){
 
-      TASKS.forEach((day, idx) => {
-        const a = sch.assignments[idx];
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${DAYS[idx]}</td>
-          <td>${idx === 0 ? a.a + ' e ' + a.b : a.a + ' e ' + a.b}</td>
-          <td>${idx === 1 ? a.a + ' e ' + a.b : ''}</td>
-          <td>${idx === 2 ? a.a + ' e ' + a.b : ''}</td>
-          <td>${idx === 3 ? a.a + ' e ' + a.b : ''}</td>
-        `;
-        // A estrutura da tabela original é por coluna de tarefa; aqui cada linha é a data com o casal em sua função.
-        tr.children[1].textContent = (a.task === 'Devocional' ? `${a.a} e ${a.b}` : '—');
-        tr.children[2].textContent = (a.task === 'Estudo' ? `${a.a} e ${a.b}` : '—');
-        tr.children[3].textContent = (a.task === 'Kids' ? `${a.a} e ${a.b}` : '—');
-        tr.children[4].textContent = (a.task === 'Lanche' ? `${a.a} e ${a.b}` : '—');
-        body.appendChild(tr);
-      });
-    }
+    scheduleBody.innerHTML = `
+      <tr>
+        <td colspan="5">
+          Nenhuma escala disponível.
+        </td>
+      </tr>
+    `;
 
-    function renderCouples(){
-      const q = el('search').value.trim().toLowerCase();
-      const list = el('coupleList');
-      list.innerHTML = '';
-      const couples = state.couples.filter(c => `${c.a} ${c.b}`.toLowerCase().includes(q) || (c.note || '').toLowerCase().includes(q));
+    return;
+  }
 
-      if(!couples.length){
-        list.innerHTML = `<div class="muted-box">Nenhum casal encontrado.</div>`;
-        return;
-      }
+  const data = snap.data();
 
-      couples.forEach(c => {
-        const div = document.createElement('div');
-        div.className = 'item';
-        div.innerHTML = `
-          <div>
-            <strong>${c.a} e ${c.b}</strong>
-            <div class="tiny">${c.note ? c.note : 'Sem observação'}</div>
-          </div>
-          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end;">
-            <span class="tag ${c.eligible ? '' : 'off'}">${c.eligible ? 'Escalável' : 'Bloqueado'}</span>
-            <button class="btn secondary" data-edit="${c.id}" style="padding:10px 12px">Editar</button>
-          </div>
-        `;
-        list.appendChild(div);
-      });
+  scheduleBody.innerHTML = `
+    <tr>
+      <td>${data.weekKey}</td>
+      <td>${data.devocional}</td>
+      <td>${data.estudo}</td>
+      <td>${data.kids}</td>
+      <td>${data.lanche}</td>
+    </tr>
+  `;
+}
 
-      document.querySelectorAll('[data-edit]').forEach(btn => {
-        btn.addEventListener('click', () => openEdit(btn.getAttribute('data-edit')));
-      });
-    }
+onSnapshot(
+  doc(db,"escala",weekKey),
+  (snap)=>{
 
-    function openEdit(id){
-      const c = state.couples.find(x => x.id === id);
-      if(!c) return;
-      state.editId = id;
-      el('editA').value = c.a;
-      el('editB').value = c.b;
-      el('editEligible').value = String(!!c.eligible);
-      el('editNote').value = c.note || '';
-      el('modal').classList.add('show');
-    }
+    if(!snap.exists())
+    return;
 
-    function closeEdit(){
-      state.editId = null;
-      el('modal').classList.remove('show');
-    }
+    const data = snap.data();
 
-    function persistAndRerender(){
-      saveState();
-      ensureCurrentWeekSchedule();
-      renderSchedule();
-      renderCouples();
-      updateAuthUI();
-    }
+    scheduleBody.innerHTML = `
+      <tr>
+        <td>${data.weekKey}</td>
+        <td>${data.devocional}</td>
+        <td>${data.estudo}</td>
+        <td>${data.kids}</td>
+        <td>${data.lanche}</td>
+      </tr>
+    `;
+  }
+);
 
-    function updateAuthUI(){
-      el('authState').textContent = state.auth ? '🔓 Admin autenticado' : '🔒 Admin não autenticado';
-      el('logoutBtn').classList.toggle('hide', !state.auth);
-      el('loginBtn').classList.toggle('hide', state.auth);
-      el('adminUser').disabled = state.auth;
-      el('adminPass').disabled = state.auth;
-      el('addCoupleBtn').disabled = !state.auth;
-      el('regenBtn').disabled = !state.auth;
-      el('resetBtn').disabled = !state.auth;
-      document.querySelectorAll('[data-edit]').forEach(b => b.disabled = !state.auth);
-    }
+loadSchedule();
 
-    function login(){
-      const user = el('adminUser').value.trim();
-      const pass = el('adminPass').value;
-      if(user === ADMIN_USER && pass === ADMIN_PASS){
-        state.auth = true;
-        updateAuthUI();
-        return;
-      }
-      alert('Login inválido.');
-    }
+</script>
 
-    function logout(){
-      state.auth = false;
-      updateAuthUI();
-    }
-
-    function addCouple(){
-      if(!state.auth) return alert('Faça login como admin.');
-      const a = el('coupleA').value.trim();
-      const b = el('coupleB').value.trim();
-      const eligible = el('eligible').value === 'true';
-      if(!a || !b) return alert('Preencha os dois nomes.');
-      state.couples.push({ id: crypto.randomUUID(), a, b, eligible, note: '' });
-      el('coupleA').value = '';
-      el('coupleB').value = '';
-      persistAndRerender();
-    }
-
-    function saveEdit(){
-      if(!state.auth) return;
-      const c = state.couples.find(x => x.id === state.editId);
-      if(!c) return;
-      c.a = el('editA').value.trim();
-      c.b = el('editB').value.trim();
-      c.eligible = el('editEligible').value === 'true';
-      c.note = el('editNote').value.trim();
-      persistAndRerender();
-      closeEdit();
-    }
-
-    function deleteEdit(){
-      if(!state.auth) return;
-      if(!confirm('Excluir este casal?')) return;
-      state.couples = state.couples.filter(x => x.id !== state.editId);
-      persistAndRerender();
-      closeEdit();
-    }
-
-    function regenerateWeek(){
-      if(!state.auth) return alert('Faça login como admin.');
-      const current = getWeekKey();
-      state.weekKey = current;
-      const next = buildScheduleForWeek();
-      if(!next){
-        alert('Não foi possível gerar a escala. Verifique se há pelo menos 4 casais escaláveis.');
-        return;
-      }
-      const idx = state.schedule.findIndex(s => s.weekKey === current);
-      if(idx >= 0) state.schedule[idx] = next; else state.schedule.push(next);
-      state.lastGeneratedWeekKey = current;
-      saveState();
-      renderSchedule();
-    }
-
-    function resetAll(){
-      if(!state.auth) return alert('Faça login como admin.');
-      if(!confirm('Isso vai apagar casais e escalas salvas neste navegador. Continuar?')) return;
-      localStorage.removeItem(STORAGE_KEY);
-      loadState();
-      state.auth = true;
-      ensureCurrentWeekSchedule();
-      persistAndRerender();
-    }
-
-    function exportJSON(){
-      const data = {
-        couples: state.couples,
-        schedule: state.schedule,
-        weekKey: state.weekKey,
-        lastGeneratedWeekKey: state.lastGeneratedWeekKey,
-      };
-      const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'escala-celula.json';
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-
-    function boot(){
-      loadState();
-      ensureCurrentWeekSchedule();
-      renderSchedule();
-      renderCouples();
-      updateAuthUI();
-      renderClock();
-      setInterval(renderClock, 1000);
-      setInterval(() => {
-        const wk = getWeekKey();
-        if(wk !== state.weekKey){
-          state.weekKey = wk;
-          ensureCurrentWeekSchedule();
-          renderSchedule();
-          renderCouples();
-        }
-      }, 60 * 1000);
-    }
-
-    // Events
-    el('loginBtn').addEventListener('click', login);
-    el('logoutBtn').addEventListener('click', logout);
-    el('addCoupleBtn').addEventListener('click', addCouple);
-    el('regenBtn').addEventListener('click', regenerateWeek);
-    el('resetBtn').addEventListener('click', resetAll);
-    el('search').addEventListener('input', renderCouples);
-    el('exportBtn').addEventListener('click', exportJSON);
-    el('closeModal').addEventListener('click', closeEdit);
-    el('saveCoupleBtn').addEventListener('click', saveEdit);
-    el('deleteCoupleBtn').addEventListener('click', deleteEdit);
-    el('modal').addEventListener('click', (e) => { if(e.target.id === 'modal') closeEdit(); });
-
-    document.getElementById('memberBtn').addEventListener('click', () => {
-      document.getElementById('entryScreen').style.display = 'none';
-    });
-
-    document.getElementById('leaderBtn').addEventListener('click', () => {
-      window.location.href = './login.html';
-    });
-
-    boot();
-  </script>
 </body>
 </html>
