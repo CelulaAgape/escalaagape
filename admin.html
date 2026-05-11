@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Painel Admin</title>
+
   <style>
     :root{
       --bg:#dff8d8;
@@ -16,371 +17,547 @@
       --shadow:0 16px 40px rgba(0,0,0,.12);
       --radius:24px;
     }
-    *{box-sizing:border-box}
+
+    *{
+      box-sizing:border-box;
+    }
+
     body{
       margin:0;
       font-family:Arial,sans-serif;
       color:var(--text);
-      background:linear-gradient(180deg, #8be15f 0%, #dff8d8 100%);
+      background:linear-gradient(180deg,#8be15f 0%,#dff8d8 100%);
       min-height:100vh;
     }
-    .wrap{max-width:1200px;margin:0 auto;padding:18px}
+
+    .wrap{
+      max-width:1200px;
+      margin:0 auto;
+      padding:20px;
+    }
+
     .top{
-      display:flex;
-      justify-content:space-between;
-      gap:16px;
-      flex-wrap:wrap;
-      align-items:flex-start;
-      background:rgba(255,255,255,.8);
-      border-radius:28px;
+      background:rgba(255,255,255,.85);
+      border-radius:30px;
       padding:24px;
       box-shadow:var(--shadow);
-      margin-bottom:18px;
+      margin-bottom:20px;
+
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      flex-wrap:wrap;
+      gap:20px;
     }
-    h1{margin:0;color:var(--primary)}
+
+    h1{
+      margin:0;
+      color:var(--primary);
+    }
+
+    .muted{
+      color:var(--muted);
+    }
+
     .btn{
       border:none;
-      background:var(--primary);
-      color:#fff;
-      padding:12px 14px;
+      padding:14px 18px;
       border-radius:14px;
       font-weight:700;
       cursor:pointer;
+      transition:.2s;
     }
-    .btn.secondary{
-      background:#fff;
-      color:var(--primary);
+
+    .btn:hover{
+      transform:translateY(-2px);
+    }
+
+    .primary{
+      background:var(--primary);
+      color:white;
+    }
+
+    .secondary{
+      background:white;
       border:1px solid var(--line);
+      color:var(--primary);
     }
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+
+    .grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:20px;
+    }
+
     .card{
-      background:var(--card);
+      background:rgba(255,255,255,.85);
       border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      border:1px solid rgba(0,0,0,.06);
       overflow:hidden;
+      box-shadow:var(--shadow);
     }
+
     .head{
       padding:18px;
       border-bottom:1px solid var(--line);
-      background:#fff;
+      background:white;
+      font-weight:700;
     }
-    .body{padding:18px}
-    input,select{
+
+    .body{
+      padding:18px;
+    }
+
+    input, select{
       width:100%;
       padding:14px;
       border-radius:14px;
       border:1px solid var(--line);
       margin-bottom:10px;
       font:inherit;
-      background:#fff;
     }
-    .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    .list{display:grid;gap:10px;margin-top:12px}
+
+    .row{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+
+    .list{
+      display:grid;
+      gap:10px;
+      margin-top:16px;
+    }
+
     .item{
-      background:#fff;
+      background:white;
       border:1px solid var(--line);
       border-radius:16px;
-      padding:12px 14px;
+      padding:14px;
+
       display:flex;
       justify-content:space-between;
-      gap:10px;
       align-items:center;
+      gap:10px;
       flex-wrap:wrap;
     }
-    table{width:100%;border-collapse:collapse;background:#fff;border-radius:18px;overflow:hidden}
-    th,td{padding:12px;border:1px solid var(--line);text-align:center}
-    th{background:#f4fff4}
-    .muted{color:var(--muted)}
-    .hidden{display:none}
-    @media (max-width: 900px){
-      .grid{grid-template-columns:1fr}
-      .row{grid-template-columns:1fr}
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      background:white;
+      border-radius:18px;
+      overflow:hidden;
+    }
+
+    th, td{
+      padding:12px;
+      border:1px solid var(--line);
+      text-align:center;
+    }
+
+    th{
+      background:#f4fff4;
+    }
+
+    .danger{
+      background:#ffefef;
+      color:#a80000;
+      border:none;
+    }
+
+    @media(max-width:900px){
+      .grid{
+        grid-template-columns:1fr;
+      }
+
+      .row{
+        grid-template-columns:1fr;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <section class="top">
-      <div>
-        <h1>Painel Admin</h1>
-        <div class="muted" id="userInfo">Verificando login...</div>
+
+<div class="wrap">
+
+  <section class="top">
+    <div>
+      <h1>Painel do Líder</h1>
+      <div id="userInfo" class="muted">
+        Verificando login...
       </div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <button id="logout" class="btn secondary">Sair</button>
-        <button id="gerar" class="btn">Gerar escala da semana</button>
+    </div>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button id="generateBtn" class="btn primary">
+        Gerar Escala
+      </button>
+
+      <button id="logoutBtn" class="btn secondary">
+        Sair
+      </button>
+    </div>
+  </section>
+
+  <div class="grid">
+
+    <section class="card">
+
+      <div class="head">
+        Adicionar Casal
       </div>
+
+      <div class="body">
+
+        <div class="row">
+          <input id="nome1" placeholder="Nome 1">
+          <input id="nome2" placeholder="Nome 2">
+        </div>
+
+        <select id="ativo">
+          <option value="true">
+            Ativo
+          </option>
+
+          <option value="false">
+            Inativo
+          </option>
+        </select>
+
+        <button id="addBtn" class="btn primary">
+          Adicionar Casal
+        </button>
+
+        <div id="couplesList" class="list"></div>
+
+      </div>
+
     </section>
 
-    <div class="grid">
-      <section class="card">
-        <div class="head">
-          <strong>Adicionar casal</strong>
-        </div>
-        <div class="body">
-          <div class="row">
-            <input id="nome1" placeholder="Nome 1" />
-            <input id="nome2" placeholder="Nome 2" />
-          </div>
-          <select id="ativo">
-            <option value="true">Ativo / pode ser escalado</option>
-            <option value="false">Inativo / não pode ser escalado</option>
-          </select>
-          <button id="add" class="btn">Salvar casal</button>
+    <section class="card">
 
-          <div class="list" id="couplesList"></div>
-        </div>
-      </section>
+      <div class="head">
+        Escala da Semana
+      </div>
 
-      <section class="card">
-        <div class="head">
-          <strong>Escala da semana</strong>
-        </div>
-        <div class="body">
-          <table>
-            <thead>
-              <tr>
-                <th>ESCALA</th>
-                <th>Devocional</th>
-                <th>Estudo</th>
-                <th>Kids</th>
-                <th>Lanche</th>
-              </tr>
-            </thead>
-            <tbody id="scheduleBody"></tbody>
-          </table>
-          <div class="muted" id="weekInfo" style="margin-top:12px;"></div>
-        </div>
-      </section>
-    </div>
+      <div class="body">
+
+        <table>
+          <thead>
+            <tr>
+              <th>Semana</th>
+              <th>Devocional</th>
+              <th>Estudo</th>
+              <th>Kids</th>
+              <th>Lanche</th>
+            </tr>
+          </thead>
+
+          <tbody id="scheduleBody"></tbody>
+        </table>
+
+      </div>
+
+    </section>
+
   </div>
 
-  <script type="module">
-    import { auth, db } from './firebase.js';
-    import {
-      onAuthStateChanged,
-      signOut
-    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+</div>
 
-    import {
-      collection,
-      addDoc,
-      updateDoc,
-      deleteDoc,
-      doc,
-      getDocs,
-      getDoc,
-      setDoc,
-      query,
-      orderBy,
-      serverTimestamp
-    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+<script type="module">
 
-    const TZ = 'America/Sao_Paulo';
-    const el = (id) => document.getElementById(id);
-    let couplesCache = [];
+import { auth, db } from './firebase.js';
 
-    function nowRio() {
-      return new Date(new Date().toLocaleString('en-US', { timeZone: TZ }));
-    }
+import {
+  onAuthStateChanged,
+  signOut
+}
+from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
-    function weekKeyFromDate(date = nowRio()) {
-      const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-      const dayNum = d.getUTCDay() || 7;
-      d.setUTCDate(d.getUTCDate() + 4 - dayNum);
-      const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-      const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
-      return `${d.getUTCFullYear()}-W${String(weekNo).padStart(2, '0')}`;
-    }
+import {
+  collection,
+  addDoc,
+  getDocs,
+  doc,
+  deleteDoc,
+  updateDoc,
+  setDoc,
+  getDoc
+}
+from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-    function shuffle(arr) {
-      const a = [...arr];
-      for (let i = a.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]];
-      }
-      return a;
-    }
+const allowedEmail = "celulaagapeie@gmail.com";
 
-    async function loadCouples() {
-      const snap = await getDocs(collection(db, 'casais'));
-      couplesCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      renderCouples();
-    }
+const couplesList =
+document.getElementById("couplesList");
 
-    function renderCouples() {
-      const box = el('couplesList');
-      box.innerHTML = '';
+const scheduleBody =
+document.getElementById("scheduleBody");
 
-      if (!couplesCache.length) {
-        box.innerHTML = `<div class="muted">Nenhum casal cadastrado.</div>`;
-        return;
-      }
+let couples = [];
 
-      couplesCache.forEach(c => {
-        const item = document.createElement('div');
-        item.className = 'item';
-        item.innerHTML = `
-          <div>
-            <strong>${c.nome1} e ${c.nome2}</strong><br>
-            <span class="muted">${c.ativo ? 'Ativo' : 'Inativo'}</span>
-          </div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <button class="btn secondary" data-toggle="${c.id}">
-              ${c.ativo ? 'Desativar' : 'Ativar'}
-            </button>
-            <button class="btn secondary" data-del="${c.id}">Excluir</button>
-          </div>
-        `;
-        box.appendChild(item);
-      });
+function weekKey(){
 
-      document.querySelectorAll('[data-toggle]').forEach(btn => {
-        btn.addEventListener('click', async () => {
-          const id = btn.getAttribute('data-toggle');
-          const current = couplesCache.find(c => c.id === id);
-          await updateDoc(doc(db, 'casais', id), { ativo: !current.ativo });
-          await loadCouples();
-        });
-      });
+  const date = new Date();
 
-      document.querySelectorAll('[data-del]').forEach(btn => {
-        btn.addEventListener('click', async () => {
-          const id = btn.getAttribute('data-del');
-          if (!confirm('Excluir este casal?')) return;
-          await deleteDoc(doc(db, 'casais', id));
-          await loadCouples();
-        });
-      });
-    }
+  const firstDay =
+  new Date(date.getFullYear(),0,1);
 
-    async function getPreviousSchedule(currentWeekKey) {
-      const snap = await getDocs(query(collection(db, 'escala'), orderBy('weekKey', 'desc')));
-      const docs = snap.docs
-        .map(d => ({ id: d.id, ...d.data() }))
-        .filter(d => d.weekKey < currentWeekKey)
-        .sort((a, b) => a.weekKey.localeCompare(b.weekKey));
+  const days =
+  Math.floor((date - firstDay) / 86400000);
 
-      return docs.length ? docs[docs.length - 1] : null;
-    }
+  const week =
+  Math.ceil((days + firstDay.getDay()+1)/7);
 
-    async function generateWeek() {
-      const currentWeekKey = weekKeyFromDate();
-      const active = couplesCache.filter(c => c.ativo);
+  return `${date.getFullYear()}-W${week}`;
+}
 
-      if (active.length < 4) {
-        alert('Você precisa de pelo menos 4 casais ativos.');
-        return;
-      }
+function shuffle(array){
 
-      const previous = await getPreviousSchedule(currentWeekKey);
-      const previousIds = previous?.chosenIds || [];
+  let currentIndex = array.length;
 
-      let chosen = null;
+  while(currentIndex != 0){
 
-      for (let i = 0; i < 300; i++) {
-        const shuffled = shuffle(active);
-        const pick = shuffled.slice(0, 4);
-        const ids = pick.map(c => c.id);
+    const randomIndex =
+    Math.floor(Math.random() * currentIndex);
 
-        if (ids.join(',') !== previousIds.join(',')) {
-          chosen = pick;
-          break;
-        }
-      }
+    currentIndex--;
 
-      if (!chosen) {
-        alert('Não foi possível montar uma escala diferente da semana anterior com os casais disponíveis.');
-        return;
-      }
+    [array[currentIndex], array[randomIndex]] = [
+      array[randomIndex],
+      array[currentIndex]
+    ];
+  }
 
-      const data = {
-        weekKey: currentWeekKey,
-        chosenIds: chosen.map(c => c.id),
-        devocional: `${chosen[0].nome1} e ${chosen[0].nome2}`,
-        estudo: `${chosen[1].nome1} e ${chosen[1].nome2}`,
-        kids: `${chosen[2].nome1} e ${chosen[2].nome2}`,
-        lanche: `${chosen[3].nome1} e ${chosen[3].nome2}`,
-        updatedAt: serverTimestamp()
-      };
+  return array;
+}
 
-      await setDoc(doc(db, 'escala', currentWeekKey), data, { merge: true });
-      await loadSchedule();
-      alert('Escala gerada com sucesso.');
-    }
+async function loadCouples(){
 
-    async function loadSchedule() {
-      const currentWeekKey = weekKeyFromDate();
-      el('weekInfo').textContent = `Semana ativa: ${currentWeekKey}`;
+  const snap =
+  await getDocs(collection(db,"casais"));
 
-      const snap = await getDoc(doc(db, 'escala', currentWeekKey));
-      const body = el('scheduleBody');
+  couples =
+  snap.docs.map(doc => ({
+    id:doc.id,
+    ...doc.data()
+  }));
 
-      if (!snap.exists()) {
-        body.innerHTML = `<tr><td colspan="5">Sem escala cadastrada para esta semana.</td></tr>`;
-        return;
-      }
+  renderCouples();
+}
 
-      const d = snap.data();
-      body.innerHTML = `
-        <tr>
-          <td>${d.weekKey}</td>
-          <td>${d.devocional || '-'}</td>
-          <td>${d.estudo || '-'}</td>
-          <td>${d.kids || '-'}</td>
-          <td>${d.lanche || '-'}</td>
-        </tr>
-      `;
-    }
+function renderCouples(){
 
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        window.location.href = './login.html';
-        return;
-      }
+  couplesList.innerHTML = "";
 
-      const allowedEmail = "celulaagapeie@gmail.com";
-      if (user.email !== allowedEmail) {
-        alert('Este acesso não é permitido para este usuário.');
-        await signOut(auth);
-        window.location.href = './login.html';
-        return;
-      }
+  couples.forEach(casal => {
 
-      el('userInfo').textContent = `Logado como: ${user.email}`;
-      await loadCouples();
-      await loadSchedule();
-    });
+    const div =
+    document.createElement("div");
 
-    el('add').addEventListener('click', async () => {
-      const nome1 = el('nome1').value.trim();
-      const nome2 = el('nome2').value.trim();
-      const ativo = el('ativo').value === 'true';
+    div.className = "item";
 
-      if (!nome1 || !nome2) {
-        alert('Preencha os dois nomes.');
-        return;
-      }
+    div.innerHTML = `
+      <div>
+        <strong>
+          ${casal.nome1} e ${casal.nome2}
+        </strong>
 
-      await addDoc(collection(db, 'casais'), {
-        nome1,
-        nome2,
-        ativo,
-        criadoEm: serverTimestamp()
-      });
+        <div class="muted">
+          ${casal.ativo ? "Ativo" : "Inativo"}
+        </div>
+      </div>
 
-      el('nome1').value = '';
-      el('nome2').value = '';
-      el('ativo').value = 'true';
-      await loadCouples();
-    });
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
 
-    el('gerar').addEventListener('click', generateWeek);
+        <button
+          class="btn secondary"
+          onclick="toggleCasal('${casal.id}', ${casal.ativo})"
+        >
+          ${casal.ativo ? "Desativar" : "Ativar"}
+        </button>
 
-    el('logout').addEventListener('click', async () => {
-      await signOut(auth);
-      window.location.href = './login.html';
-    });
-  </script>
+        <button
+          class="btn danger"
+          onclick="deleteCasal('${casal.id}')"
+        >
+          Excluir
+        </button>
+
+      </div>
+    `;
+
+    couplesList.appendChild(div);
+  });
+}
+
+window.deleteCasal = async(id)=>{
+
+  if(!confirm("Excluir casal?"))
+  return;
+
+  await deleteDoc(doc(db,"casais",id));
+
+  loadCouples();
+}
+
+window.toggleCasal = async(id,ativo)=>{
+
+  await updateDoc(doc(db,"casais",id),{
+    ativo:!ativo
+  });
+
+  loadCouples();
+}
+
+document
+.getElementById("addBtn")
+.addEventListener("click", async()=>{
+
+  const nome1 =
+  document.getElementById("nome1").value;
+
+  const nome2 =
+  document.getElementById("nome2").value;
+
+  const ativo =
+  document.getElementById("ativo").value === "true";
+
+  if(!nome1 || !nome2){
+
+    alert("Preencha os nomes.");
+    return;
+  }
+
+  await addDoc(collection(db,"casais"),{
+    nome1,
+    nome2,
+    ativo
+  });
+
+  document.getElementById("nome1").value="";
+  document.getElementById("nome2").value="";
+
+  loadCouples();
+});
+
+document
+.getElementById("generateBtn")
+.addEventListener("click", async()=>{
+
+  const ativos =
+  couples.filter(c=>c.ativo);
+
+  if(ativos.length < 4){
+
+    alert("Precisa de 4 casais ativos.");
+    return;
+  }
+
+  const embaralhados =
+  shuffle([...ativos]);
+
+  const escolhidos =
+  embaralhados.slice(0,4);
+
+  const data = {
+    weekKey:weekKey(),
+    devocional:
+      `${escolhidos[0].nome1} e ${escolhidos[0].nome2}`,
+
+    estudo:
+      `${escolhidos[1].nome1} e ${escolhidos[1].nome2}`,
+
+    kids:
+      `${escolhidos[2].nome1} e ${escolhidos[2].nome2}`,
+
+    lanche:
+      `${escolhidos[3].nome1} e ${escolhidos[3].nome2}`
+  };
+
+  await setDoc(
+    doc(db,"escala",weekKey()),
+    data
+  );
+
+  loadSchedule();
+
+  alert("Escala gerada.");
+});
+
+async function loadSchedule(){
+
+  const snap =
+  await getDoc(
+    doc(db,"escala",weekKey())
+  );
+
+  scheduleBody.innerHTML = "";
+
+  if(!snap.exists()){
+
+    scheduleBody.innerHTML = `
+      <tr>
+        <td colspan="5">
+          Nenhuma escala.
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+  const data = snap.data();
+
+  scheduleBody.innerHTML = `
+    <tr>
+      <td>${data.weekKey}</td>
+      <td>${data.devocional}</td>
+      <td>${data.estudo}</td>
+      <td>${data.kids}</td>
+      <td>${data.lanche}</td>
+    </tr>
+  `;
+}
+
+onAuthStateChanged(auth, async(user)=>{
+
+  if(!user){
+
+    window.location.href = "./login.html";
+    return;
+  }
+
+  if(user.email !== allowedEmail){
+
+    alert("Este acesso não é permitido para este usuário");
+
+    await signOut(auth);
+
+    window.location.href = "./login.html";
+
+    return;
+  }
+
+  document.getElementById("userInfo")
+  .innerText =
+  `Logado como ${user.email}`;
+
+  loadCouples();
+  loadSchedule();
+});
+
+document
+.getElementById("logoutBtn")
+.addEventListener("click", async()=>{
+
+  await signOut(auth);
+
+  window.location.href =
+  "./login.html";
+});
+
+</script>
+
 </body>
 </html>
