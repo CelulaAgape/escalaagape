@@ -1,1 +1,386 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel Admin</title>
+  <style>
+    :root{
+      --bg:#dff8d8;
+      --card:#ffffffee;
+      --primary:#1f7a4f;
+      --accent:#e23d3d;
+      --text:#18302a;
+      --muted:#5d6d68;
+      --line:#d8e6dc;
+      --shadow:0 16px 40px rgba(0,0,0,.12);
+      --radius:24px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Arial,sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg, #8be15f 0%, #dff8d8 100%);
+      min-height:100vh;
+    }
+    .wrap{max-width:1200px;margin:0 auto;padding:18px}
+    .top{
+      display:flex;
+      justify-content:space-between;
+      gap:16px;
+      flex-wrap:wrap;
+      align-items:flex-start;
+      background:rgba(255,255,255,.8);
+      border-radius:28px;
+      padding:24px;
+      box-shadow:var(--shadow);
+      margin-bottom:18px;
+    }
+    h1{margin:0;color:var(--primary)}
+    .btn{
+      border:none;
+      background:var(--primary);
+      color:#fff;
+      padding:12px 14px;
+      border-radius:14px;
+      font-weight:700;
+      cursor:pointer;
+    }
+    .btn.secondary{
+      background:#fff;
+      color:var(--primary);
+      border:1px solid var(--line);
+    }
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+    .card{
+      background:var(--card);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      border:1px solid rgba(0,0,0,.06);
+      overflow:hidden;
+    }
+    .head{
+      padding:18px;
+      border-bottom:1px solid var(--line);
+      background:#fff;
+    }
+    .body{padding:18px}
+    input,select{
+      width:100%;
+      padding:14px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      margin-bottom:10px;
+      font:inherit;
+      background:#fff;
+    }
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .list{display:grid;gap:10px;margin-top:12px}
+    .item{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:12px 14px;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    table{width:100%;border-collapse:collapse;background:#fff;border-radius:18px;overflow:hidden}
+    th,td{padding:12px;border:1px solid var(--line);text-align:center}
+    th{background:#f4fff4}
+    .muted{color:var(--muted)}
+    .hidden{display:none}
+    @media (max-width: 900px){
+      .grid{grid-template-columns:1fr}
+      .row{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="top">
+      <div>
+        <h1>Painel Admin</h1>
+        <div class="muted" id="userInfo">Verificando login...</div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button id="logout" class="btn secondary">Sair</button>
+        <button id="gerar" class="btn">Gerar escala da semana</button>
+      </div>
+    </section>
 
+    <div class="grid">
+      <section class="card">
+        <div class="head">
+          <strong>Adicionar casal</strong>
+        </div>
+        <div class="body">
+          <div class="row">
+            <input id="nome1" placeholder="Nome 1" />
+            <input id="nome2" placeholder="Nome 2" />
+          </div>
+          <select id="ativo">
+            <option value="true">Ativo / pode ser escalado</option>
+            <option value="false">Inativo / não pode ser escalado</option>
+          </select>
+          <button id="add" class="btn">Salvar casal</button>
+
+          <div class="list" id="couplesList"></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="head">
+          <strong>Escala da semana</strong>
+        </div>
+        <div class="body">
+          <table>
+            <thead>
+              <tr>
+                <th>ESCALA</th>
+                <th>Devocional</th>
+                <th>Estudo</th>
+                <th>Kids</th>
+                <th>Lanche</th>
+              </tr>
+            </thead>
+            <tbody id="scheduleBody"></tbody>
+          </table>
+          <div class="muted" id="weekInfo" style="margin-top:12px;"></div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script type="module">
+    import { auth, db } from './firebase.js';
+    import {
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+    import {
+      collection,
+      addDoc,
+      updateDoc,
+      deleteDoc,
+      doc,
+      getDocs,
+      getDoc,
+      setDoc,
+      query,
+      orderBy,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    const TZ = 'America/Sao_Paulo';
+    const el = (id) => document.getElementById(id);
+    let couplesCache = [];
+
+    function nowRio() {
+      return new Date(new Date().toLocaleString('en-US', { timeZone: TZ }));
+    }
+
+    function weekKeyFromDate(date = nowRio()) {
+      const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+      const dayNum = d.getUTCDay() || 7;
+      d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+      const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+      const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+      return `${d.getUTCFullYear()}-W${String(weekNo).padStart(2, '0')}`;
+    }
+
+    function shuffle(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    async function loadCouples() {
+      const snap = await getDocs(collection(db, 'casais'));
+      couplesCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderCouples();
+    }
+
+    function renderCouples() {
+      const box = el('couplesList');
+      box.innerHTML = '';
+
+      if (!couplesCache.length) {
+        box.innerHTML = `<div class="muted">Nenhum casal cadastrado.</div>`;
+        return;
+      }
+
+      couplesCache.forEach(c => {
+        const item = document.createElement('div');
+        item.className = 'item';
+        item.innerHTML = `
+          <div>
+            <strong>${c.nome1} e ${c.nome2}</strong><br>
+            <span class="muted">${c.ativo ? 'Ativo' : 'Inativo'}</span>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn secondary" data-toggle="${c.id}">
+              ${c.ativo ? 'Desativar' : 'Ativar'}
+            </button>
+            <button class="btn secondary" data-del="${c.id}">Excluir</button>
+          </div>
+        `;
+        box.appendChild(item);
+      });
+
+      document.querySelectorAll('[data-toggle]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const id = btn.getAttribute('data-toggle');
+          const current = couplesCache.find(c => c.id === id);
+          await updateDoc(doc(db, 'casais', id), { ativo: !current.ativo });
+          await loadCouples();
+        });
+      });
+
+      document.querySelectorAll('[data-del]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const id = btn.getAttribute('data-del');
+          if (!confirm('Excluir este casal?')) return;
+          await deleteDoc(doc(db, 'casais', id));
+          await loadCouples();
+        });
+      });
+    }
+
+    async function getPreviousSchedule(currentWeekKey) {
+      const snap = await getDocs(query(collection(db, 'escala'), orderBy('weekKey', 'desc')));
+      const docs = snap.docs
+        .map(d => ({ id: d.id, ...d.data() }))
+        .filter(d => d.weekKey < currentWeekKey)
+        .sort((a, b) => a.weekKey.localeCompare(b.weekKey));
+
+      return docs.length ? docs[docs.length - 1] : null;
+    }
+
+    async function generateWeek() {
+      const currentWeekKey = weekKeyFromDate();
+      const active = couplesCache.filter(c => c.ativo);
+
+      if (active.length < 4) {
+        alert('Você precisa de pelo menos 4 casais ativos.');
+        return;
+      }
+
+      const previous = await getPreviousSchedule(currentWeekKey);
+      const previousIds = previous?.chosenIds || [];
+
+      let chosen = null;
+
+      for (let i = 0; i < 300; i++) {
+        const shuffled = shuffle(active);
+        const pick = shuffled.slice(0, 4);
+        const ids = pick.map(c => c.id);
+
+        if (ids.join(',') !== previousIds.join(',')) {
+          chosen = pick;
+          break;
+        }
+      }
+
+      if (!chosen) {
+        alert('Não foi possível montar uma escala diferente da semana anterior com os casais disponíveis.');
+        return;
+      }
+
+      const data = {
+        weekKey: currentWeekKey,
+        chosenIds: chosen.map(c => c.id),
+        devocional: `${chosen[0].nome1} e ${chosen[0].nome2}`,
+        estudo: `${chosen[1].nome1} e ${chosen[1].nome2}`,
+        kids: `${chosen[2].nome1} e ${chosen[2].nome2}`,
+        lanche: `${chosen[3].nome1} e ${chosen[3].nome2}`,
+        updatedAt: serverTimestamp()
+      };
+
+      await setDoc(doc(db, 'escala', currentWeekKey), data, { merge: true });
+      await loadSchedule();
+      alert('Escala gerada com sucesso.');
+    }
+
+    async function loadSchedule() {
+      const currentWeekKey = weekKeyFromDate();
+      el('weekInfo').textContent = `Semana ativa: ${currentWeekKey}`;
+
+      const snap = await getDoc(doc(db, 'escala', currentWeekKey));
+      const body = el('scheduleBody');
+
+      if (!snap.exists()) {
+        body.innerHTML = `<tr><td colspan="5">Sem escala cadastrada para esta semana.</td></tr>`;
+        return;
+      }
+
+      const d = snap.data();
+      body.innerHTML = `
+        <tr>
+          <td>${d.weekKey}</td>
+          <td>${d.devocional || '-'}</td>
+          <td>${d.estudo || '-'}</td>
+          <td>${d.kids || '-'}</td>
+          <td>${d.lanche || '-'}</td>
+        </tr>
+      `;
+    }
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = './login.html';
+        return;
+      }
+
+      const allowedEmail = "SEU_EMAIL_AQUI";
+      if (user.email !== allowedEmail) {
+        alert('Este acesso não é permitido para este usuário.');
+        await signOut(auth);
+        window.location.href = './login.html';
+        return;
+      }
+
+      el('userInfo').textContent = `Logado como: ${user.email}`;
+      await loadCouples();
+      await loadSchedule();
+    });
+
+    el('add').addEventListener('click', async () => {
+      const nome1 = el('nome1').value.trim();
+      const nome2 = el('nome2').value.trim();
+      const ativo = el('ativo').value === 'true';
+
+      if (!nome1 || !nome2) {
+        alert('Preencha os dois nomes.');
+        return;
+      }
+
+      await addDoc(collection(db, 'casais'), {
+        nome1,
+        nome2,
+        ativo,
+        criadoEm: serverTimestamp()
+      });
+
+      el('nome1').value = '';
+      el('nome2').value = '';
+      el('ativo').value = 'true';
+      await loadCouples();
+    });
+
+    el('gerar').addEventListener('click', generateWeek);
+
+    el('logout').addEventListener('click', async () => {
+      await signOut(auth);
+      window.location.href = './login.html';
+    });
+  </script>
+</body>
+</html>
