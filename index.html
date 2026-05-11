@@ -1,1 +1,263 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Escala da Célula</title>
+  <style>
+    :root{
+      --bg:#dff8d8;
+      --card:#ffffffee;
+      --primary:#1f7a4f;
+      --accent:#e23d3d;
+      --text:#18302a;
+      --muted:#5d6d68;
+      --line:#d8e6dc;
+      --shadow:0 16px 40px rgba(0,0,0,.12);
+      --radius:24px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Arial, sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg, #8be15f 0%, #9be868 20%, #dff8d8 100%);
+      min-height:100vh;
+    }
+    .wrap{max-width:1200px;margin:0 auto;padding:18px}
+    .hero{
+      background:rgba(255,255,255,.78);
+      border-radius:32px;
+      box-shadow:var(--shadow);
+      padding:24px;
+      border:1px solid rgba(255,255,255,.55);
+      margin-bottom:18px;
+    }
+    h1{
+      margin:0;
+      font-size:clamp(2rem,6vw,4rem);
+      color:var(--primary);
+    }
+    .top{
+      display:flex;
+      justify-content:space-between;
+      gap:16px;
+      flex-wrap:wrap;
+      align-items:flex-start;
+    }
+    .pill{
+      display:inline-block;
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:999px;
+      padding:10px 14px;
+      font-weight:700;
+      margin:8px 8px 0 0;
+    }
+    .clock{
+      text-align:right;
+      min-width:260px;
+    }
+    .clock .time{font-size:2rem;font-weight:900;color:var(--primary)}
+    .clock .date{color:var(--muted);font-weight:700}
+    .grid{
+      display:grid;
+      grid-template-columns:1.3fr .7fr;
+      gap:18px;
+    }
+    .card{
+      background:var(--card);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      border:1px solid rgba(0,0,0,.06);
+      overflow:hidden;
+    }
+    .head{
+      padding:18px;
+      border-bottom:1px solid var(--line);
+      background:rgba(255,255,255,.8);
+    }
+    .body{padding:18px}
+    table{width:100%;border-collapse:collapse;background:#fff;border-radius:18px;overflow:hidden}
+    th,td{padding:14px 12px;border:1px solid var(--line);text-align:center}
+    th{background:#f4fff4}
+    tbody td:first-child{font-weight:900;color:var(--accent)}
+    .muted{color:var(--muted)}
+    .list{
+      display:grid;
+      gap:10px;
+    }
+    .item{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:12px 14px;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+    }
+    @media (max-width: 900px){
+      .grid{grid-template-columns:1fr}
+      .clock{text-align:left}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="top">
+        <div>
+          <h1>Escala da Célula</h1>
+          <div class="pill">Público</div>
+          <div class="pill">Atualiza pela semana do Rio</div>
+        </div>
+        <div class="clock">
+          <div class="muted">Hora do Rio de Janeiro</div>
+          <div id="time" class="time">--:--:--</div>
+          <div id="date" class="date">--</div>
+        </div>
+      </div>
+    </section>
 
+    <div class="grid">
+      <section class="card">
+        <div class="head">
+          <strong>Escala da semana</strong>
+          <div id="weekInfo" class="muted">Carregando...</div>
+        </div>
+        <div class="body">
+          <table>
+            <thead>
+              <tr>
+                <th>ESCALA</th>
+                <th>Devocional</th>
+                <th>Estudo</th>
+                <th>Kids</th>
+                <th>Lanche</th>
+              </tr>
+            </thead>
+            <tbody id="scheduleBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="head">
+          <strong>Casais ativos</strong>
+        </div>
+        <div class="body">
+          <div id="couplesList" class="list"></div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script type="module">
+    import { db } from './firebase.js';
+    import { doc, getDoc, getDocs, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    const TZ = 'America/Sao_Paulo';
+    const el = (id) => document.getElementById(id);
+
+    function nowRio() {
+      return new Date(new Date().toLocaleString('en-US', { timeZone: TZ }));
+    }
+
+    function weekKeyFromDate(date = nowRio()) {
+      const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+      const dayNum = d.getUTCDay() || 7;
+      d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+      const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+      const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+      return `${d.getUTCFullYear()}-W${String(weekNo).padStart(2, '0')}`;
+    }
+
+    function renderClock() {
+      const d = nowRio();
+      el('time').textContent = d.toLocaleTimeString('pt-BR', { timeZone: TZ });
+      el('date').textContent = d.toLocaleDateString('pt-BR', {
+        timeZone: TZ,
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    }
+
+    function renderSchedule(data) {
+      const body = el('scheduleBody');
+      body.innerHTML = '';
+
+      if (!data) {
+        body.innerHTML = `<tr><td colspan="5">Nenhuma escala cadastrada para esta semana.</td></tr>`;
+        return;
+      }
+
+      body.innerHTML = `
+        <tr>
+          <td>${data.weekKey}</td>
+          <td>${data.devocional || '-'}</td>
+          <td>${data.estudo || '-'}</td>
+          <td>${data.kids || '-'}</td>
+          <td>${data.lanche || '-'}</td>
+        </tr>
+      `;
+    }
+
+    async function renderCouples() {
+      const snap = await getDocs(collection(db, 'casais'));
+      const list = el('couplesList');
+      list.innerHTML = '';
+
+      const active = snap.docs
+        .map(d => ({ id: d.id, ...d.data() }))
+        .filter(c => c.ativo);
+
+      if (!active.length) {
+        list.innerHTML = `<div class="muted">Nenhum casal ativo.</div>`;
+        return;
+      }
+
+      active.forEach(c => {
+        const div = document.createElement('div');
+        div.className = 'item';
+        div.innerHTML = `<strong>${c.nome1} e ${c.nome2}</strong><span>${c.ativo ? 'Ativo' : 'Inativo'}</span>`;
+        list.appendChild(div);
+      });
+    }
+
+    async function loadWeek() {
+      const weekKey = weekKeyFromDate();
+      el('weekInfo').textContent = `Semana ativa: ${weekKey}`;
+
+      const ref = doc(db, 'escala', weekKey);
+      const snap = await getDoc(ref);
+
+      if (snap.exists()) {
+        renderSchedule(snap.data());
+      } else {
+        renderSchedule(null);
+      }
+    }
+
+    renderClock();
+    setInterval(renderClock, 1000);
+
+    await loadWeek();
+    await renderCouples();
+
+    setInterval(async () => {
+      const current = weekKeyFromDate();
+      if (el('weekInfo').textContent !== `Semana ativa: ${current}`) {
+        await loadWeek();
+      }
+    }, 60 * 1000);
+
+    // atualiza a escala em tempo real se o admin alterar a doc da semana
+    onSnapshot(doc(db, 'escala', weekKeyFromDate()), (snap) => {
+      if (snap.exists()) renderSchedule(snap.data());
+    });
+  </script>
+</body>
+</html>
